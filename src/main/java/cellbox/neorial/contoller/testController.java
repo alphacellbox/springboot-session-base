@@ -3,7 +3,7 @@ package cellbox.neorial.contoller;
 
 import cellbox.neorial.enumaration.Roles;
 import cellbox.neorial.model.User;
-import cellbox.neorial.repository.UsersRepository;
+import cellbox.neorial.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/")
 public class testController {
 
-     UsersRepository usersRepository;
+     UserRepository userRepository;
      PasswordEncoder passwordEncoder;
 
     @GetMapping("test")
@@ -27,7 +27,7 @@ public class testController {
     }
     @GetMapping("/t")
     public String t(){
-        usersRepository.save(User.builder()
+        userRepository.save(User.builder()
                         .email("hi")
                         .password(passwordEncoder.encode("dfg"))
                         .role(Roles.USER)
