@@ -4,17 +4,14 @@ import cellbox.neorial.service.LargePayloadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.Scheduled;
-
-import java.io.IOException;
 
 @SpringBootApplication
 @EnableAsync
 public class NeorialApplication {
 
     public static void main(String[] args) {
+
 //        System.setProperty("http.proxyHost", "127.0.0.1");
 //        System.setProperty("http.proxyPort", "8080");
 //        System.setProperty("https.proxyHost", "127.0.0.1");

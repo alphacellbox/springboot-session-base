@@ -34,8 +34,8 @@ public class User implements Serializable {
     String password;
     boolean enable;
     Roles role;
-    @Reference
-    Set<Session> sessions = new HashSet<Session>();
+//    @Reference
+//    Set<Session> sessions = new HashSet<Session>();
 
 
 }
