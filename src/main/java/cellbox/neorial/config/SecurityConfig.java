@@ -21,6 +21,8 @@ import org.springframework.security.web.context.DelegatingSecurityContextReposit
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.savedrequest.NullRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 
 import javax.sql.DataSource;
 
@@ -31,17 +33,20 @@ import javax.sql.DataSource;
 public class SecurityConfig {
 
     UsersManaging usersManaging;
+
     @Bean
-    public AuthenticationProvider  DaoAuthenticationProvider(){
+    public AuthenticationProvider DaoAuthenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(usersManaging);
         authProvider.setPasswordEncoder(encoder());
         return authProvider;
     }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
+
     @Bean
     public SecurityContextRepository securityContextRepository() {
         return new DelegatingSecurityContextRepository(new RequestAttributeSecurityContextRepository(),
@@ -50,19 +55,20 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain a(HttpSecurity http) throws Exception {
-       return http
-               .securityMatcher("/**")
-               .authorizeHttpRequests(authZ ->{
-                   authZ.anyRequest().permitAll();
-               })
-               .sessionManagement(manager -> {manager.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
-               })
-               .securityContext((securityContext) -> securityContext
-                       .requireExplicitSave(true)
-               )
-               .authenticationProvider(DaoAuthenticationProvider())
-               .formLogin(AbstractHttpConfigurer::disable)
-               .build();
+        return http
+                .securityMatcher("/**")
+                .authorizeHttpRequests(authZ -> authZ.anyRequest().permitAll())
+                .sessionManagement(manager ->
+                        manager.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .securityContext((securityContext) -> securityContext
+                        .requireExplicitSave(true))
+//TODO uncomment this if u dont want to create any session when request is not authenticated
+//                .requestCache((cache) ->{
+//                    RequestCache nullRequestCache = new NullRequestCache();
+//                    cache.requestCache(nullRequestCache);})
+                .authenticationProvider(DaoAuthenticationProvider())
+                .formLogin(AbstractHttpConfigurer::disable)
+                .build();
     }
 
     @Bean

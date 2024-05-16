@@ -28,10 +28,9 @@ public class testController {
     private final SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
     AuthenticationManager authenticationManager;
     SecurityContextRepository securityContextRepository;
-
     @GetMapping("/register")
     @Transactional
-    public String t(HttpServletRequest request, HttpServletResponse response) {
+    public String register(HttpServletRequest request, HttpServletResponse response) {
         User a = userRepository.save(User.builder()
                 .email("hi")
                 .password(passwordEncoder.encode("dfg"))
@@ -47,7 +46,18 @@ public class testController {
         SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
         context.setAuthentication(authentication);
         this.securityContextHolderStrategy.setContext(context);
-        this.securityContextRepository.saveContext(context, request, response);
+        return "hi";
+    }
+    @GetMapping("/login")
+    public String login(HttpServletRequest request, HttpServletResponse response) {
+        UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(
+                "hi", "dfg");
+        Authentication authentication = this.authenticationManager.authenticate(token);
+        SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
+        context.setAuthentication(authentication);
+        this.securityContextHolderStrategy.setContext(context);
+        this.securityContextRepository.saveContext(context,request,response);
+
         return "hi";
     }
 
