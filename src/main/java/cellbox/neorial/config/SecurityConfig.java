@@ -60,8 +60,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authZ -> authZ.anyRequest().permitAll())
                 .sessionManagement(manager ->
                         manager.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .securityContext((securityContext) -> securityContext
-                        .requireExplicitSave(true))
+//                .securityContext((securityContext) -> securityContext
+//                        .requireExplicitSave(true))
 //TODO uncomment this if u dont want to create any session when request is not authenticated
 //                .requestCache((cache) ->{
 //                    RequestCache nullRequestCache = new NullRequestCache();

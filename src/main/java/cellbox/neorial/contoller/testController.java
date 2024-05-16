@@ -29,10 +29,10 @@ public class testController {
     AuthenticationManager authenticationManager;
     SecurityContextRepository securityContextRepository;
     @GetMapping("/register")
-    @Transactional
+//    @Transactional
     public String register(HttpServletRequest request, HttpServletResponse response) {
         User a = userRepository.save(User.builder()
-                .email("hi")
+                .email("hi@gmail.com")
                 .password(passwordEncoder.encode("dfg"))
                 .role(Roles.USER)
                 .enable(true)
@@ -41,11 +41,12 @@ public class testController {
                 .credentialsNonExpired(true)
                 .build());
         UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(
-                "hi", "dfg");
+                "hi@gmail.com", "dfg");
         Authentication authentication = this.authenticationManager.authenticate(token);
         SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
         context.setAuthentication(authentication);
         this.securityContextHolderStrategy.setContext(context);
+//        this.securityContextRepository.saveContext(context,request,response);
         return "hi";
     }
     @GetMapping("/login")
@@ -56,7 +57,7 @@ public class testController {
         SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
         context.setAuthentication(authentication);
         this.securityContextHolderStrategy.setContext(context);
-        this.securityContextRepository.saveContext(context,request,response);
+//        this.securityContextRepository.saveContext(context,request,response);
 
         return "hi";
     }
