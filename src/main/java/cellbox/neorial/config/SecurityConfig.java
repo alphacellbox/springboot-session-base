@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -15,6 +17,10 @@ import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.DelegatingSecurityContextRepository;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 import javax.sql.DataSource;
 
@@ -33,6 +39,16 @@ public class SecurityConfig {
         return authProvider;
     }
     @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
+    @Bean
+    public SecurityContextRepository securityContextRepository() {
+        return new DelegatingSecurityContextRepository(new RequestAttributeSecurityContextRepository(),
+                new HttpSessionSecurityContextRepository());
+    }
+
+    @Bean
     public SecurityFilterChain a(HttpSecurity http) throws Exception {
        return http
                .securityMatcher("/**")
@@ -41,6 +57,9 @@ public class SecurityConfig {
                })
                .sessionManagement(manager -> {manager.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
                })
+               .securityContext((securityContext) -> securityContext
+                       .requireExplicitSave(true)
+               )
                .authenticationProvider(DaoAuthenticationProvider())
                .formLogin(AbstractHttpConfigurer::disable)
                .build();
