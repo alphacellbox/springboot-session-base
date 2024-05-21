@@ -4,9 +4,9 @@ package cellbox.neorial.model;
 import cellbox.neorial.enumaration.Roles;
 import jakarta.persistence.GeneratedValue;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Reference;
 import org.springframework.data.redis.core.RedisHash;
@@ -30,11 +30,13 @@ public class User implements Serializable, UserDetails {
     @Email
     @Indexed
     String email;
-
+  @NotNull
     String password;
     boolean enable;
     Roles role;
     boolean accountNonExpired;
+
+
     boolean credentialsNonExpired;
     boolean accountNonLocked;
 
