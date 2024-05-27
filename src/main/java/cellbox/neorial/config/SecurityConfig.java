@@ -13,6 +13,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +25,7 @@ import org.springframework.security.web.context.RequestAttributeSecurityContextR
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import javax.sql.DataSource;
 
@@ -52,14 +55,48 @@ public class SecurityConfig {
         return new DelegatingSecurityContextRepository(new RequestAttributeSecurityContextRepository(),
                 new HttpSessionSecurityContextRepository());
     }
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
+    }
 
     @Bean
+    @Order(1)
     public SecurityFilterChain a(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher("/**")
-                .authorizeHttpRequests(authZ -> authZ.anyRequest().permitAll())
+                .securityMatcher("/b")
+                .authorizeHttpRequests(authZ -> authZ.anyRequest().authenticated())
                 .sessionManagement(manager ->
-                        manager.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                        manager.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+//                                .sessionConcurrency((concurrency) -> concurrency
+//                                        .maximumSessions(1)
+//                                        .maxSessionsPreventsLogin(true)))
+                                .maximumSessions(2)
+                                .maxSessionsPreventsLogin(true)
+                .sessionRegistry(sessionRegistry()))
+
+//                .securityContext((securityContext) -> securityContext
+//                        .requireExplicitSave(true))
+//TODO uncomment this if u dont want to create any session when request is not authenticated
+//                .requestCache((cache) ->{
+//                    RequestCache nullRequestCache = new NullRequestCache();
+//                    cache.requestCache(nullRequestCache);})
+                .authenticationProvider(DaoAuthenticationProvider())
+                .formLogin(AbstractHttpConfigurer::disable)
+                .build();
+    }
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+    @Bean
+    @Order(2)
+    public SecurityFilterChain b(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/login","/register")
+                .authorizeHttpRequests(authZ -> authZ.anyRequest().permitAll())
+//                                .maximumSessions(2)
+//                                .maxSessionsPreventsLogin(true))
 //                .securityContext((securityContext) -> securityContext
 //                        .requireExplicitSave(true))
 //TODO uncomment this if u dont want to create any session when request is not authenticated

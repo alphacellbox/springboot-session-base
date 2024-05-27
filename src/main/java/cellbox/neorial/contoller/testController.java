@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/")
@@ -29,8 +31,12 @@ public class testController {
     AuthenticationManager authenticationManager;
     SecurityContextRepository securityContextRepository;
     @GetMapping("/register")
-//    @Transactional
+    @Transactional
     public String register(HttpServletRequest request, HttpServletResponse response) {
+        Optional<User> email=userRepository.findFirstByEmail("hi@gmail.com");
+        if (email.isPresent()) {
+            return "email exist";
+        }
         User a = userRepository.save(User.builder()
                 .email("hi@gmail.com")
                 .password(passwordEncoder.encode("dfg"))
@@ -40,24 +46,31 @@ public class testController {
                 .accountNonLocked(true)
                 .credentialsNonExpired(true)
                 .build());
+//        UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(
+//                "hi@gmail.com", "dfg");
+//        Authentication authentication = this.authenticationManager.authenticate(token);
+//        SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
+//        context.setAuthentication(authentication);
+//        this.securityContextHolderStrategy.setContext(context);
+
+//        this.securityContextRepository.saveContext(context,request,response);
+        return "hi";
+    }
+    @GetMapping("/b")
+    public String b(HttpServletRequest request, HttpServletResponse response) {
+
+        return "bbbbbbbbb";
+    }
+
+    @GetMapping("/login")
+    public String login(HttpServletRequest request, HttpServletResponse response) {
         UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(
                 "hi@gmail.com", "dfg");
         Authentication authentication = this.authenticationManager.authenticate(token);
         SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
         context.setAuthentication(authentication);
         this.securityContextHolderStrategy.setContext(context);
-//        this.securityContextRepository.saveContext(context,request,response);
-        return "hi";
-    }
-    @GetMapping("/login")
-    public String login(HttpServletRequest request, HttpServletResponse response) {
-        UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(
-                "hi", "dfg");
-        Authentication authentication = this.authenticationManager.authenticate(token);
-        SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
-        context.setAuthentication(authentication);
-        this.securityContextHolderStrategy.setContext(context);
-//        this.securityContextRepository.saveContext(context,request,response);
+        this.securityContextRepository.saveContext(context,request,response);
 
         return "hi";
     }
