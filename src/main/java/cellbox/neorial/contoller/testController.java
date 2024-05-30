@@ -65,6 +65,12 @@ public class testController {
 
         return "bbbbbbbbb";
     }
+
+    @GetMapping("/")
+    public String f(HttpServletRequest request, HttpServletResponse response) {
+
+        return "boooooooooooood";
+    }
     @Autowired
     CompositeSessionAuthenticationStrategy strategy;
     @GetMapping("/login")

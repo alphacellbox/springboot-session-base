@@ -72,16 +72,16 @@ public class SecurityConfig {
 //    @Order(1)
     public SecurityFilterChain a(HttpSecurity http) throws Exception {
         return http
-//                .securityMatcher("/b")
-//                .authorizeHttpRequests(authZ -> authZ.anyRequest().authenticated())
+                .securityMatcher("/b")
+                .authorizeHttpRequests(authZ -> authZ.anyRequest().authenticated())
                 .sessionManagement(manager ->
                         manager.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-//                                .sessionConcurrency((concurrency) -> concurrency
-//                                        .maximumSessions(1)
-//                                        .maxSessionsPreventsLogin(true)))
-                                .maximumSessions(2)
-                                .maxSessionsPreventsLogin(true))
-//                .sessionRegistry(sessionRegistry()))
+                                .sessionConcurrency((concurrency) -> concurrency
+                                        .maximumSessions(1)
+                                        .maxSessionsPreventsLogin(true)
+//                                .maximumSessions(2)
+//                                .maxSessionsPreventsLogin(true)
+                .sessionRegistry(sessionRegistry())))
 
 //                .securityContext((securityContext) -> securityContext
 //                        .requireExplicitSave(true))
@@ -90,7 +90,7 @@ public class SecurityConfig {
 //                    RequestCache nullRequestCache = new NullRequestCache();
 //                    cache.requestCache(nullRequestCache);})
 //                .authenticationProvider(DaoAuthenticationProvider())
-                .formLogin(AbstractHttpConfigurer::disable)
+//                .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .build();
     }
