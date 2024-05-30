@@ -6,6 +6,7 @@ import cellbox.neorial.model.User;
 import cellbox.neorial.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -33,7 +35,7 @@ public class testController {
     private final SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
     AuthenticationManager authenticationManager;
     SecurityContextRepository securityContextRepository;
-    AuthenticationEventPublisher eventPublisher;
+    HttpSessionEventPublisher eventPublisher;
     @GetMapping("/register")
     @Transactional
     public String register(HttpServletRequest request, HttpServletResponse response) {
@@ -83,6 +85,7 @@ public class testController {
         this.securityContextHolderStrategy.setContext(context);
         this.securityContextRepository.saveContext(context,request,response);
         strategy.onAuthentication(authentication,request,response);
+        eventPublisher.sessionCreated(new HttpSessionEvent(request.getSession()));
         return "hi";
     }
 
