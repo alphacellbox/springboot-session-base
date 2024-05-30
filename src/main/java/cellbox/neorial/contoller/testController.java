@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,6 +17,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,10 +29,11 @@ import java.util.Optional;
 public class testController {
 
     UserRepository userRepository;
-    PasswordEncoder passwordEncoder;
+//    PasswordEncoder passwordEncoder;
     private final SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
     AuthenticationManager authenticationManager;
     SecurityContextRepository securityContextRepository;
+    AuthenticationEventPublisher eventPublisher;
     @GetMapping("/register")
     @Transactional
     public String register(HttpServletRequest request, HttpServletResponse response) {
@@ -39,7 +43,7 @@ public class testController {
         }
         User a = userRepository.save(User.builder()
                 .email("hi@gmail.com")
-                .password(passwordEncoder.encode("dfg"))
+//                .password(passwordEncoder.encode("dfg"))
                 .role(Roles.USER)
                 .enable(true)
                 .accountNonExpired(true)
@@ -61,7 +65,8 @@ public class testController {
 
         return "bbbbbbbbb";
     }
-
+    @Autowired
+    CompositeSessionAuthenticationStrategy strategy;
     @GetMapping("/login")
     public String login(HttpServletRequest request, HttpServletResponse response) {
         UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(
@@ -71,7 +76,7 @@ public class testController {
         context.setAuthentication(authentication);
         this.securityContextHolderStrategy.setContext(context);
         this.securityContextRepository.saveContext(context,request,response);
-
+        strategy.onAuthentication(authentication,request,response);
         return "hi";
     }
 
