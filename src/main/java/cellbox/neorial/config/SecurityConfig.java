@@ -129,6 +129,7 @@ public class SecurityConfig {
                 List.of(ConcurrentSessionControlAuthenticationStrategy(),
                         RegisterSessionAuthenticationStrategy()));
     }
+
     public SessionAuthenticationStrategy ConcurrentSessionControlAuthenticationStrategy(){
         ConcurrentSessionControlAuthenticationStrategy config= new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry());
         config.setMaximumSessions(2);
@@ -143,6 +144,7 @@ public class SecurityConfig {
 //    public SecurityFilterChain b(HttpSecurity http) throws Exception {
 //        return http
 //                .securityMatcher("/login","/register")
+
 //                .authorizeHttpRequests(authZ -> authZ.anyRequest().permitAll())
 ////                                .maximumSessions(2)
 ////                                .maxSessionsPreventsLogin(true))
