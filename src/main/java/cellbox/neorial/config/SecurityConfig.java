@@ -1,6 +1,8 @@
 package cellbox.neorial.config;
 
 import cellbox.neorial.service.UsersManaging;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,16 +15,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.*;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
@@ -68,21 +68,44 @@ public class SecurityConfig {
         return new HttpSessionEventPublisher();
     }
 
+//    @Bean
+//    @Order(2)
+//    public SessionAuthenticationStrategy sessionAuthenticationStrategy(HttpSecurity http) throws Exception {
+//        http
+////                .securityMatcher("/**")
+//                .authorizeHttpRequests(authZ -> authZ.requestMatchers("/login","/register").permitAll()
+//
+//                        .anyRequest().authenticated())
+//                .sessionManagement(manager ->
+//                                manager
+////                                sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+////                                .sessionConcurrency((concurrency) -> concurrency
+////                                        .maximumSessions(2)
+////                                        .maxSessionsPreventsLogin(true)))
+//                                        .maximumSessions(2)
+//                                        .maxSessionsPreventsLogin(true)
+//                                        .sessionRegistry(sessionRegistry())
+//                )
+//
+////                .securityContext((securityContext) -> securityContext
+////                        .requireExplicitSave(true))
+////TODO uncomment this if u dont want to create any session when request is not authenticated
+////                .requestCache((cache) ->{
+////                    RequestCache nullRequestCache = new NullRequestCache();
+////                    cache.requestCache(nullRequestCache);})
+////                .authenticationProvider(DaoAuthenticationProvider())
+////                .formLogin(withDefaults())
+////                .formLogin(AbstractHttpConfigurer::disable)
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .build();
+//        return http.getSharedObject(SessionAuthenticationStrategy.class);
+//
+//    }
     @Bean
-//    @Order(1)
     public SecurityFilterChain a(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher("/b")
-                .authorizeHttpRequests(authZ -> authZ.anyRequest().authenticated())
-                .sessionManagement(manager ->
-                        manager.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                                .sessionConcurrency((concurrency) -> concurrency
-                                        .maximumSessions(1)
-                                        .maxSessionsPreventsLogin(true)
-//                                .maximumSessions(2)
-//                                .maxSessionsPreventsLogin(true)
-                .sessionRegistry(sessionRegistry())))
-
+//                .securityMatcher("/**")
+                .authorizeHttpRequests(authZ -> authZ.requestMatchers("/login","/register").permitAll() .anyRequest().authenticated())
 //                .securityContext((securityContext) -> securityContext
 //                        .requireExplicitSave(true))
 //TODO uncomment this if u dont want to create any session when request is not authenticated
@@ -90,10 +113,12 @@ public class SecurityConfig {
 //                    RequestCache nullRequestCache = new NullRequestCache();
 //                    cache.requestCache(nullRequestCache);})
 //                .authenticationProvider(DaoAuthenticationProvider())
+//                .formLogin(withDefaults())
 //                .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .build();
     }
+
     @Bean
     public SessionRegistry sessionRegistry() {
         return new SessionRegistryImpl();
@@ -101,11 +126,14 @@ public class SecurityConfig {
     @Bean
     public CompositeSessionAuthenticationStrategy CompositeSessionAuthenticationStrategy(){
         return new CompositeSessionAuthenticationStrategy(
-                List.of(SessionAuthenticationStrategy(),
+                List.of(ConcurrentSessionControlAuthenticationStrategy(),
                         RegisterSessionAuthenticationStrategy()));
     }
-    public SessionAuthenticationStrategy SessionAuthenticationStrategy(){
-        return new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry());
+    public SessionAuthenticationStrategy ConcurrentSessionControlAuthenticationStrategy(){
+        ConcurrentSessionControlAuthenticationStrategy config= new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry());
+        config.setMaximumSessions(2);
+        config.setExceptionIfMaximumExceeded(true);
+        return  config;
     }
     public SessionAuthenticationStrategy RegisterSessionAuthenticationStrategy(){
         return new RegisterSessionAuthenticationStrategy(sessionRegistry());

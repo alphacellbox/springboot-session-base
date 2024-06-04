@@ -17,8 +17,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.bind.annotation.*;
@@ -31,21 +34,22 @@ import java.util.Optional;
 public class testController {
 
     UserRepository userRepository;
-//    PasswordEncoder passwordEncoder;
+    PasswordEncoder passwordEncoder;
     private final SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
     AuthenticationManager authenticationManager;
     SecurityContextRepository securityContextRepository;
-    HttpSessionEventPublisher eventPublisher;
+    SessionRegistry sessionRegistry;
+
     @GetMapping("/register")
     @Transactional
     public String register(HttpServletRequest request, HttpServletResponse response) {
-        Optional<User> email=userRepository.findFirstByEmail("hi@gmail.com");
+        Optional<User> email = userRepository.findFirstByEmail("hi@gmail.com");
         if (email.isPresent()) {
             return "email exist";
         }
         User a = userRepository.save(User.builder()
                 .email("hi@gmail.com")
-//                .password(passwordEncoder.encode("dfg"))
+                .password(passwordEncoder.encode("dfg"))
                 .role(Roles.USER)
                 .enable(true)
                 .accountNonExpired(true)
@@ -62,6 +66,7 @@ public class testController {
 //        this.securityContextRepository.saveContext(context,request,response);
         return "hi";
     }
+
     @GetMapping("/b")
     public String b(HttpServletRequest request, HttpServletResponse response) {
 
@@ -70,11 +75,15 @@ public class testController {
 
     @GetMapping("/")
     public String f(HttpServletRequest request, HttpServletResponse response) {
-
-        return "boooooooooooood";
+        return request.getSession().getId();
     }
+
     @Autowired
-    CompositeSessionAuthenticationStrategy strategy;
+    HttpSessionEventPublisher httpSessionEventPublisher;
+    //    CompositeSessionAuthenticationStrategy strategy;
+    @Autowired
+    private SessionAuthenticationStrategy sessionStrategy;
+
     @GetMapping("/login")
     public String login(HttpServletRequest request, HttpServletResponse response) {
         UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(
@@ -83,10 +92,11 @@ public class testController {
         SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
         context.setAuthentication(authentication);
         this.securityContextHolderStrategy.setContext(context);
-        this.securityContextRepository.saveContext(context,request,response);
-        strategy.onAuthentication(authentication,request,response);
-        eventPublisher.sessionCreated(new HttpSessionEvent(request.getSession()));
+        this.securityContextRepository.saveContext(context, request, response);
+//        httpSessionEventPublisher.sessionCreated(new HttpSessionEvent(request.getSession()));
+        sessionStrategy.onAuthentication(authentication,request,response);
+//        sessionRegistry.registerNewSession(request.getSession().getId(),authentication.getPrincipal());
+//        this.sessionRegistry.getSessionInformation("612271cb-903f-4431-a248-1307654fb7d7");
         return "hi";
     }
-
 }

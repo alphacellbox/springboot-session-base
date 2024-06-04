@@ -30,7 +30,7 @@ public class User implements Serializable, UserDetails {
     @Email
     @Indexed
     String email;
-  @NotNull
+    @NotNull
     String password;
     boolean enable;
     Roles role;
