@@ -56,14 +56,7 @@ public class testController {
                 .accountNonLocked(true)
                 .credentialsNonExpired(true)
                 .build());
-//        UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(
-//                "hi@gmail.com", "dfg");
-//        Authentication authentication = this.authenticationManager.authenticate(token);
-//        SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
-//        context.setAuthentication(authentication);
-//        this.securityContextHolderStrategy.setContext(context);
 
-//        this.securityContextRepository.saveContext(context,request,response);
         return "hi";
     }
 
